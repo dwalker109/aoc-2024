@@ -29,4 +29,4 @@ jobs:
       run: cargo build --release
     - name: Run all
       run: |
-        cargo run --release --bin day00
+        cargo run --release --bin day01
