@@ -26,5 +26,22 @@ I just stayed basic. Maybe this will bother me and I'll come back later, who kno
 
 ### Timings
 
+```
 Part 1: 2176849 (81.833µs)
 Part 2: 23384288 (371.131µs)
+```
+
+## Day 2: Red-Nosed Reports
+
+Fairly simple really, and part one didn't take long. Part two confused me a
+surprising amount, but ultimately it just came down to pre-computing a 
+number of different variants to test against. Most of my issues here were
+related to me trying to avoid allocations and getting tied in knots of nested
+iterator adapters.
+
+### Timings
+
+```
+Part 1: 639 (228.246µs)
+Part 2: 674 (441.274µs)
+```
