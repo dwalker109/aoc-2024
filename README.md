@@ -12,7 +12,7 @@ Timings come from a run in GitHub Actions.
 ## Day Setup
 
 - ensure the `aocday` template and `aocfin` input downloaded are setup 
-  (see [aoc-shared](https://github.com/dwalker109/aoc-shared).
+  (see [aoc-shared](https://github.com/dwalker109/aoc-shared)).
 - `cd days && cargo generate aocday --name dayXX`
 - `cd input && aocfin -O dayXX 2024 XX`
 
@@ -44,4 +44,20 @@ iterator adapters.
 ```
 Part 1: 639 (228.246µs)
 Part 2: 674 (441.274µs)
+```
+
+## Day 3: Mull It Over
+
+I decided I didn't want to use a regex for this, and I didn't want to hand parse
+either. So I decided to use [nom](https://docs.rs/nom/latest/nom/c) instead. It is
+a great tool, which I have used for some low level message parsing before. But
+I haven't used it for over a year, and I forgot some of the basics, and I really tied
+myself in knots. That said, I am reasonably happy with where I ended up and it's
+pretty fast.
+
+### Timings
+
+```
+Part 1: 188192787 (270.224µs)
+Part 2: 113965544 (381.812µs)  
 ```
