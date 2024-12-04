@@ -61,3 +61,18 @@ pretty fast.
 Part 1: 188192787 (270.224µs)
 Part 2: 113965544 (381.812µs)  
 ```
+
+## Day 4: Day 4: Ceres Search
+
+Quite enjoyed this, though I initially misunderstood the instructions and failed
+to deal with a key requirement - straight lines only. The examples kinda *looked*
+like crooked matches was OK, but once I learned (thanks, subreddit) the truth,
+I wasn't far from a resolution. Part 2 was great; I was able to repurpose my part 1
+pretty well, which is always satisfying.
+
+### Timings
+
+```
+Part 1: 2534 (2.92382ms)
+Part 2: 1866 (1.686545ms)
+```
