@@ -76,3 +76,17 @@ pretty well, which is always satisfying.
 Part 1: 2534 (2.92382ms)
 Part 2: 1866 (1.686545ms)
 ```
+
+## Day 5: Print Queue
+
+Another one I liked. Took me a little while to figure out what was needed but once
+I reasoned it out, implementing it worked first time, near enough. Part 2 involved
+traversing and modifying a vector while traversing so that makes borrowing rules
+a challenge, but switching to using manual index access is simple enough.
+
+### Timings
+
+```
+Part 1: 6267 (309.209µs)
+Part 2: 5184 (1.212138ms)
+```
