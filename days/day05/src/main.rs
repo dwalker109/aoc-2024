@@ -26,49 +26,42 @@ fn part2(input: &'static str) -> Answer {
         .filter(|u| !is_correct(u, &rules))
         .collect::<Vec<_>>();
 
-    dbg!(&incorrect);
-
     let mut results = Vec::new();
+
     for &update in incorrect.iter() {
-        let mut curr = update.clone();
         let mut working = update.clone();
 
         loop {
             let mut stable = true;
 
-            for (p_idx, p) in curr.iter().enumerate() {
-                for (x_idx, x) in curr[..p_idx].iter().enumerate() {
-                    if rules.contains(&(*p, *x)) {
-                        dbg!("Swapping 1", p_idx, x_idx);
+            for p_idx in 0..working.len() {
+                let p = working[p_idx];
+
+                for x_idx in 0..p_idx {
+                    let x = working[x_idx];
+                    if rules.contains(&(p, x)) {
                         working.swap(p_idx, x_idx);
-                        dbg!(&working);
-                        continue;
-                        // stable = false;
+                        stable = false;
                     }
                 }
-                for (x_idx, x) in curr[p_idx..].iter().enumerate() {
-                    if rules.contains(&(*x, *p)) {
-                        dbg!("Swapping 2", p_idx, x_idx);
+
+                for x_idx in p_idx..working.len() {
+                    let x = working[x_idx];
+                    if rules.contains(&(x, p)) {
                         working.swap(p_idx, x_idx);
-                        dbg!(&working);
-                        continue;
-                        // stable = false;
+                        stable = false;
                     }
                 }
             }
 
             if stable {
-                results.push(curr);
+                results.push(working);
                 break;
-            } else {
-                curr = working.clone();
             }
         }
     }
 
-    dbg!(&results);
-
-    todo!()
+    results.iter().map(|u| u[(u.len() - 1) / 2]).sum()
 }
 
 fn parse(input: &str) -> (HashSet<(usize, usize)>, Vec<Vec<usize>>) {
@@ -118,6 +111,6 @@ mod tests {
 
     #[test]
     fn part2() {
-        assert_eq!(super::part2(INPUT), super::Answer::default());
+        assert_eq!(super::part2(INPUT), 123);
     }
 }
