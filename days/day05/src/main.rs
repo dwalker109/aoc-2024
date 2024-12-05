@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use rustc_hash::FxHashSet;
 
 static INPUT: &str = include_str!("../../../input/day05");
 
@@ -21,50 +21,45 @@ fn part1(input: &'static str) -> Answer {
 fn part2(input: &'static str) -> Answer {
     let (rules, updates) = parse(input);
 
-    let incorrect = updates
+    updates
         .iter()
         .filter(|u| !is_correct(u, &rules))
-        .collect::<Vec<_>>();
+        .map(|update| {
+            let mut working = update.clone();
 
-    let mut results = Vec::new();
+            loop {
+                let mut settled = true;
 
-    for &update in incorrect.iter() {
-        let mut working = update.clone();
+                for p_idx in 0..working.len() {
+                    let p = working[p_idx];
 
-        loop {
-            let mut stable = true;
+                    for x_idx in 0..p_idx {
+                        let x = working[x_idx];
+                        if rules.contains(&(p, x)) {
+                            working.swap(p_idx, x_idx);
+                            settled = false;
+                        }
+                    }
 
-            for p_idx in 0..working.len() {
-                let p = working[p_idx];
-
-                for x_idx in 0..p_idx {
-                    let x = working[x_idx];
-                    if rules.contains(&(p, x)) {
-                        working.swap(p_idx, x_idx);
-                        stable = false;
+                    for x_idx in p_idx..working.len() {
+                        let x = working[x_idx];
+                        if rules.contains(&(x, p)) {
+                            working.swap(p_idx, x_idx);
+                            settled = false;
+                        }
                     }
                 }
 
-                for x_idx in p_idx..working.len() {
-                    let x = working[x_idx];
-                    if rules.contains(&(x, p)) {
-                        working.swap(p_idx, x_idx);
-                        stable = false;
-                    }
+                if settled {
+                    return working;
                 }
             }
-
-            if stable {
-                results.push(working);
-                break;
-            }
-        }
-    }
-
-    results.iter().map(|u| u[(u.len() - 1) / 2]).sum()
+        })
+        .map(|u| u[(u.len() - 1) / 2])
+        .sum()
 }
 
-fn parse(input: &str) -> (HashSet<(usize, usize)>, Vec<Vec<usize>>) {
+fn parse(input: &str) -> (FxHashSet<(usize, usize)>, Vec<Vec<usize>>) {
     let (rules, updates) = input.split_once("\n\n").unwrap();
 
     let rules = rules
@@ -83,7 +78,7 @@ fn parse(input: &str) -> (HashSet<(usize, usize)>, Vec<Vec<usize>>) {
     (rules, updates)
 }
 
-fn is_correct(update: &[usize], rules: &HashSet<(usize, usize)>) -> bool {
+fn is_correct(update: &[usize], rules: &FxHashSet<(usize, usize)>) -> bool {
     for (i, p) in update.iter().enumerate() {
         for x in &update[..i] {
             if rules.contains(&(*p, *x)) {
