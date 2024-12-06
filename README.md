@@ -1,8 +1,8 @@
-# Advent of Code 2024 !!! 
+# Advent of Code 2024 !!!
 
 Well, here we are again. Another year, another promise to myself that I'll respect my own
-time and bail out once I get tired of it. We'll see how that goes. I'm using Rust again, 
-because it's fun, and it's where I'm most productive. Deps are fine. 
+time and bail out once I get tired of it. We'll see how that goes. I'm using Rust again,
+because it's fun, and it's where I'm most productive. Deps are fine.
 
 Solutions all expect inputs to be found in the `./input` directory, at the project root. Its
 contents are stored in a private submodule, to respect the requirement not to publish inputs.
@@ -11,7 +11,7 @@ Timings come from a run in GitHub Actions.
 
 ## Day Setup
 
-- ensure the `aocday` template and `aocfin` input downloaded are setup 
+- ensure the `aocday` template and `aocfin` input downloaded are setup
   (see [aoc-shared](https://github.com/dwalker109/aoc-shared)).
 - `cd days && cargo generate aocday --name dayXX`
 - `cd input && aocfin -O dayXX 2024 XX`
@@ -21,7 +21,7 @@ Timings come from a run in GitHub Actions.
 Not hard but I haven't done any AOC since late 2023 so I was a bit rusty. Took
 longer that I would expect it to. Went with a simple pair of lists in the end.
 Part 2 could be optimised by pre-calculating frequency of occurrences, but since
-a naive approach (just count the list every time) take less than a millisecond, 
+a naive approach (just count the list every time) take less than a millisecond,
 I just stayed basic. Maybe this will bother me and I'll come back later, who knows.
 
 ### Timings
@@ -34,7 +34,7 @@ Part 2: 23384288 (371.131µs)
 ## Day 2: Red-Nosed Reports
 
 Fairly simple really, and part one didn't take long. Part two confused me a
-surprising amount, but ultimately it just came down to pre-computing a 
+surprising amount, but ultimately it just came down to pre-computing a
 number of different variants to test against. Most of my issues here were
 related to me trying to avoid allocations and getting tied in knots of nested
 iterator adapters.
@@ -89,4 +89,20 @@ a challenge, but switching to using manual index access is simple enough.
 ```
 Part 1: 6267 (309.209µs)
 Part 2: 5184 (1.212138ms)
+```
+
+## Day 6: Guard Gallivant
+
+I *really* made a meal of this. I feel like there is more code here than strictly
+sensible, but I wrote the structs and their methods up front, and part 1 basically
+worked immediately. Part 2 just got me in a muddle though. My code was a mess,
+I kept getting the wrong answers, and my debugging ended up being scattershot.
+I came back to it later and rewrote part 2, and got it. It's brute force, and slower
+than I'd like (nearly half a second), but I'm leaving it as is (for now at least).
+
+### Timings
+
+```
+Part 1: 5199 (404.163µs)
+Part 2: 1915 (542.346611ms)
 ```
