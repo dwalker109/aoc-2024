@@ -106,3 +106,38 @@ than I'd like (nearly half a second), but I'm leaving it as is (for now at least
 Part 1: 5199 (404.163µs)
 Part 2: 1915 (542.346611ms)
 ```
+
+## Day 7: Bridge Repair
+
+Thoroughly enjoyed this. Once I figured out how to make my various permutations
+(actually *cartesian product*), I needed to act on them. I initially just used an
+eval library to make it easy but operator precedence killed that idea, so I switched
+to folding over my own enum containing either operators or a literal number. This
+led to a *glorious* part 2 where I made a tiny change (literally add another op)
+and solved it immediately. Serendipitous indeed. Performance was not great though,
+so once I was advised that doing the sums right to left would lead to much more
+efficient culling of sums which wouldn't work, I implemented that and speeded
+things up 6x, to something I'm happier with. Caching the ops also helped a little.
+
+### Timings
+
+```
+Part 1: 538191549061 (2.884808ms)
+Part 2: 34612812972206 (113.005146ms)
+```
+
+## Day 8: Resonant Collinearity
+
+Another *excellent* day. I found it quite straightforward, and part 2 was another
+natural extension of part 1, which was satisfying. Implementing Add and Sub traits
+for my Xy coordinates, and iterating over each group of antennae in two dimensions
+felt elegant, and is very fast indeed. Allowing myself to wake up and ponder the
+problem a little bit works wonders for me. Probably the quickest day so far,
+bizarrely.
+
+### Timings
+
+```
+Part 1: 332 (33.903µs)
+Part 2: 1174 (94.125µs)
+```

@@ -1,4 +1,5 @@
 use itertools::{repeat_n, Itertools};
+use rustc_hash::FxHashMap;
 
 static INPUT: &str = include_str!("../../../input/day07");
 
@@ -9,43 +10,67 @@ fn main() {
 }
 
 fn part1(input: &'static str) -> Answer {
-    let input = parsing::parse(input);
-    let ops = [Op::Add, Op::Mult];
-
-    let truthy = input
-        .iter()
-        .filter(|(target, n)| {
-            repeat_n(ops.iter().copied(), n.len() - 1)
-                .multi_cartesian_product()
-                .any(|cp| {
-                    let mut sum = n.iter().map(|n| Op::Num(*n)).interleave(cp.iter().copied());
-
-                    let init = sum.next().unwrap();
-                    let result = sum
-                        .tuples()
-                        .fold(init, |acc, (first, second)| first.apply(&acc, &second));
-
-                    *target == result.unwrap()
-                })
-        })
-        .collect_vec();
-
-    truthy.iter().map(|(n, _)| n).sum()
+    go(input, &[Op::Add, Op::Mult])
 }
 
 fn part2(input: &'static str) -> Answer {
-    todo!();
+    go(input, &[Op::Add, Op::Mult, Op::Concat])
+}
+
+fn go(input: &str, ops: &[Op]) -> usize {
+    let parsed = parsing::parse(input);
+    let mut cp = OpsCartesianProductCache::default();
+
+    parsed
+        .iter()
+        .filter(|(target, n)| is_truthy(target, n, ops, &mut cp))
+        .map(|(n, _)| n)
+        .sum()
+}
+
+#[derive(Default)]
+struct OpsCartesianProductCache(FxHashMap<usize, Vec<Vec<Op>>>);
+
+impl OpsCartesianProductCache {
+    fn get(&mut self, len: &usize, ops: &[Op]) -> &[Vec<Op>] {
+        self.0.entry(*len).or_insert_with(|| {
+            repeat_n(ops.iter().copied(), len - 1)
+                .multi_cartesian_product()
+                .collect()
+        })
+    }
+}
+
+fn is_truthy(target: &usize, n: &[usize], ops: &[Op], cp: &mut OpsCartesianProductCache) -> bool {
+    cp.get(&n.len(), ops).iter().any(|cp| {
+        let sum = n
+            .iter()
+            .rev() // Goes in reverse, which allows for quicker aborting
+            .map(|n| Op::Num(*n))
+            .interleave(cp.iter().copied());
+
+        let result = sum
+            .tuples()
+            .try_fold(Op::Num(*target), |acc, (a, b)| b.try_apply(&acc, &a));
+
+        match result {
+            None => false,
+            Some(x) => x.unwrap() == *n.first().unwrap(),
+        }
+    })
 }
 
 #[derive(Debug, Clone, Copy)]
 enum Op {
     Add,
     Mult,
+    Concat,
     Num(usize),
 }
 
 impl Op {
-    fn apply(&self, l: &Op, r: &Op) -> Op {
+    /// try_apply operates on the sum right to left, so * are divides, + are subtracts, || are splits
+    fn try_apply(&self, l: &Op, r: &Op) -> Option<Op> {
         let Op::Num(l) = *l else {
             panic!("must be a number!");
         };
@@ -54,16 +79,34 @@ impl Op {
         };
 
         match self {
-            Op::Add => Op::Num(l + r),
-            Op::Mult => Op::Num(l * r),
-            _ => panic!("must be add or mult!"),
+            Op::Add => l.checked_sub(r).map(Op::Num),
+            Op::Mult => (l % r == 0).then(|| Op::Num(l / r)),
+            Op::Concat => {
+                let mut l = l;
+                let mut r = r;
+
+                while r != 0 {
+                    let last_l_digit = l % 10;
+                    let last_r_digit = r % 10;
+
+                    if last_l_digit == last_r_digit {
+                        l /= 10;
+                        r /= 10;
+                    } else {
+                        return None;
+                    }
+                }
+
+                Some(Op::Num(l))
+            }
+            _ => panic!("cannot apply this op"),
         }
     }
 
     fn unwrap(&self) -> usize {
         match self {
             Op::Num(n) => *n,
-            _ => panic!("must be a number!"),
+            _ => panic!("must be a number"),
         }
     }
 }
@@ -108,6 +151,6 @@ mod tests {
 
     #[test]
     fn part2() {
-        assert_eq!(super::part2(INPUT), super::Answer::default());
+        assert_eq!(super::part2(INPUT), 11387);
     }
 }
