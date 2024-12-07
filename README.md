@@ -106,3 +106,21 @@ than I'd like (nearly half a second), but I'm leaving it as is (for now at least
 Part 1: 5199 (404.163µs)
 Part 2: 1915 (542.346611ms)
 ```
+
+## Day 7: Bridge Repair
+
+Thoroughly enjoyed this. Once I figured out how to make my various permutations
+(actually *cartesian product*), I needed to act on them. I initially just used an
+eval library to make it easy but operator precedence killed that idea, so I switched
+to folding over my own enum containing either operators or a literal number. This
+led to a *glorious* part 2 where I made a tiny change (literally add another op)
+and solved it immediately. Serendipitous indeed. My naive integer concat (literally
+format! them together) worked but was slow, so the maths here is not my own. It
+still isn't that quick but meh.
+
+### Timings
+
+```
+Part 1: 538191549061 (13.670531ms)
+Part 2: 34612812972206 (738.940613ms)
+```

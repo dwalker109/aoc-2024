@@ -34,13 +34,35 @@ fn part1(input: &'static str) -> Answer {
 }
 
 fn part2(input: &'static str) -> Answer {
-    todo!();
+    let input = parsing::parse(input);
+    let ops = [Op::Add, Op::Mult, Op::Concat];
+
+    let truthy = input
+        .iter()
+        .filter(|(target, n)| {
+            repeat_n(ops.iter().copied(), n.len() - 1)
+                .multi_cartesian_product()
+                .any(|cp| {
+                    let mut sum = n.iter().map(|n| Op::Num(*n)).interleave(cp.iter().copied());
+
+                    let init = sum.next().unwrap();
+                    let result = sum
+                        .tuples()
+                        .fold(init, |acc, (first, second)| first.apply(&acc, &second));
+
+                    *target == result.unwrap()
+                })
+        })
+        .collect_vec();
+
+    truthy.iter().map(|(n, _)| n).sum()
 }
 
 #[derive(Debug, Clone, Copy)]
 enum Op {
     Add,
     Mult,
+    Concat,
     Num(usize),
 }
 
@@ -56,7 +78,9 @@ impl Op {
         match self {
             Op::Add => Op::Num(l + r),
             Op::Mult => Op::Num(l * r),
-            _ => panic!("must be add or mult!"),
+            // See https://www.reddit.com/r/rust/comments/191l3ot
+            Op::Concat => Op::Num(l * 10usize.pow(r.ilog10() + 1) + r),
+            _ => panic!("must be add or mult or concat!"),
         }
     }
 
@@ -108,6 +132,6 @@ mod tests {
 
     #[test]
     fn part2() {
-        assert_eq!(super::part2(INPUT), super::Answer::default());
+        assert_eq!(super::part2(INPUT), 11387);
     }
 }
