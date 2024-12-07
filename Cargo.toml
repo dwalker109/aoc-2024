@@ -5,3 +5,5 @@ members = ["days/day*"]
 [workspace.dependencies]
 aoc_shared = { git = "https://github.com/dwalker109/aoc-shared" }
 rustc-hash = "2.1.0"
+nom = "7.1.3"
+itertools = "0.13.0"
