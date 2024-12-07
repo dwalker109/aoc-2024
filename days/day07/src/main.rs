@@ -1,4 +1,7 @@
+use crate::parsing::ParsedInput;
 use itertools::{repeat_n, Itertools};
+use std::collections::{HashMap, HashSet};
+use std::ops::ControlFlow;
 
 static INPUT: &str = include_str!("../../../input/day07");
 
@@ -10,37 +13,71 @@ fn main() {
 
 fn part1(input: &'static str) -> Answer {
     let input = parsing::parse(input);
-    let ops = [Op::Add, Op::Mult];
+    let cp = gen_cp(&input, &[Op::Add, Op::Mult]);
 
-    let truthy = input
+    input
         .iter()
-        .filter(|(target, n)| {
-            repeat_n(ops.iter().copied(), n.len() - 1)
-                .multi_cartesian_product()
-                .any(|cp| {
-                    let mut sum = n.iter().map(|n| Op::Num(*n)).interleave(cp.iter().copied());
-
-                    let init = sum.next().unwrap();
-                    let result = sum
-                        .tuples()
-                        .fold(init, |acc, (first, second)| first.apply(&acc, &second));
-
-                    *target == result.unwrap()
-                })
-        })
-        .collect_vec();
-
-    truthy.iter().map(|(n, _)| n).sum()
+        .filter(|(target, n)| is_truthy(target, n, &cp))
+        .map(|(n, _)| n)
+        .sum()
 }
 
 fn part2(input: &'static str) -> Answer {
-    todo!();
+    let input = parsing::parse(input);
+    let cp = gen_cp(&input, &[Op::Add, Op::Mult, Op::Concat]);
+
+    input
+        .iter()
+        .filter(|(target, n)| is_truthy(target, n, &cp))
+        .map(|(n, _)| n)
+        .sum()
+}
+
+fn gen_cp(input: &ParsedInput, ops: &[Op]) -> HashMap<usize, Vec<Vec<Op>>> {
+    let i_range = input
+        .iter()
+        .map(|(_, n)| n.len())
+        .collect::<HashSet<usize>>();
+
+    i_range
+        .iter()
+        .map(|i| {
+            (
+                *i,
+                repeat_n(ops.iter().copied(), i - 1)
+                    .multi_cartesian_product()
+                    .collect(),
+            )
+        })
+        .collect()
+}
+
+fn is_truthy(target: &usize, n: &[usize], cp: &HashMap<usize, Vec<Vec<Op>>>) -> bool {
+    cp.get(&n.len()).unwrap().iter().any(|cp| {
+        let mut sum = n.iter().map(|n| Op::Num(*n)).interleave(cp.iter().copied());
+
+        let init = sum.next().unwrap();
+        let result = sum.tuples().try_fold(init, |acc, (first, second)| {
+            let next = first.apply(&acc, &second);
+            if next.unwrap() > *target {
+                ControlFlow::Break(Op::Num(0))
+            } else {
+                ControlFlow::Continue(next)
+            }
+        });
+
+        match result {
+            ControlFlow::Continue(op) => *target == op.unwrap(),
+            ControlFlow::Break(_) => false,
+        }
+    })
 }
 
 #[derive(Debug, Clone, Copy)]
 enum Op {
     Add,
     Mult,
+    Concat,
     Num(usize),
 }
 
@@ -56,7 +93,9 @@ impl Op {
         match self {
             Op::Add => Op::Num(l + r),
             Op::Mult => Op::Num(l * r),
-            _ => panic!("must be add or mult!"),
+            // See https://www.reddit.com/r/rust/comments/191l3ot
+            Op::Concat => Op::Num(l * 10usize.pow(r.ilog10() + 1) + r),
+            _ => panic!("must be add or mult or concat!"),
         }
     }
 
@@ -78,7 +117,9 @@ mod parsing {
         IResult,
     };
 
-    pub fn parse(input: &str) -> Vec<(usize, Vec<usize>)> {
+    pub type ParsedInput = Vec<(usize, Vec<usize>)>;
+
+    pub fn parse(input: &str) -> ParsedInput {
         input
             .lines()
             .map(|r| parse_line(r).unwrap())
@@ -108,6 +149,6 @@ mod tests {
 
     #[test]
     fn part2() {
-        assert_eq!(super::part2(INPUT), super::Answer::default());
+        assert_eq!(super::part2(INPUT), 11387);
     }
 }

@@ -9,4 +9,3 @@ edition = "2021"
 aoc_shared = { workspace = true }
 nom = { workspace = true }
 itertools = { workspace = true }
-
