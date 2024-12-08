@@ -1,7 +1,6 @@
 use crate::parsing::ParsedInput;
 use itertools::{repeat_n, Itertools};
 use std::collections::{HashMap, HashSet};
-use std::ops::ControlFlow;
 
 static INPUT: &str = include_str!("../../../input/day07");
 
@@ -54,21 +53,19 @@ fn gen_cp(input: &ParsedInput, ops: &[Op]) -> HashMap<usize, Vec<Vec<Op>>> {
 
 fn is_truthy(target: &usize, n: &[usize], cp: &HashMap<usize, Vec<Vec<Op>>>) -> bool {
     cp.get(&n.len()).unwrap().iter().any(|cp| {
-        let mut sum = n.iter().map(|n| Op::Num(*n)).interleave(cp.iter().copied());
+        let sum = n
+            .iter()
+            .rev()
+            .map(|n| Op::Num(*n))
+            .interleave(cp.iter().copied());
 
-        let init = sum.next().unwrap();
-        let result = sum.tuples().try_fold(init, |acc, (first, second)| {
-            let next = first.apply(&acc, &second);
-            if next.unwrap() > *target {
-                ControlFlow::Break(Op::Num(0))
-            } else {
-                ControlFlow::Continue(next)
-            }
-        });
+        let result = sum
+            .tuples()
+            .try_fold(Op::Num(*target), |acc, (a, b)| b.try_apply(&acc, &a));
 
         match result {
-            ControlFlow::Continue(op) => *target == op.unwrap(),
-            ControlFlow::Break(_) => false,
+            None => false,
+            Some(x) => x.unwrap() == *n.first().unwrap(),
         }
     })
 }
@@ -79,10 +76,11 @@ enum Op {
     Mult,
     Concat,
     Num(usize),
+    Invalid,
 }
 
 impl Op {
-    fn apply(&self, l: &Op, r: &Op) -> Op {
+    fn try_apply(&self, l: &Op, r: &Op) -> Option<Op> {
         let Op::Num(l) = *l else {
             panic!("must be a number!");
         };
@@ -91,18 +89,29 @@ impl Op {
         };
 
         match self {
-            Op::Add => Op::Num(l + r),
-            Op::Mult => Op::Num(l * r),
+            Op::Add => l.checked_sub(r).and_then(|n| Some(Op::Num(n))),
+            Op::Mult => (l % r == 0).then(|| Op::Num(l / r)),
             // See https://www.reddit.com/r/rust/comments/191l3ot
-            Op::Concat => Op::Num(l * 10usize.pow(r.ilog10() + 1) + r),
-            _ => panic!("must be add or mult or concat!"),
+            Op::Concat => {
+                let l = l.to_string();
+                let r = r.to_string();
+                if l.ends_with(&r) {
+                    match l[..l.len() - r.len()].parse::<usize>() {
+                        Ok(n) => Some(Op::Num(n)),
+                        Err(_) => None,
+                    }
+                } else {
+                    None
+                }
+            }
+            _ => panic!("cannot apply this op"),
         }
     }
 
     fn unwrap(&self) -> usize {
         match self {
             Op::Num(n) => *n,
-            _ => panic!("must be a number!"),
+            _ => panic!("must be a number"),
         }
     }
 }
