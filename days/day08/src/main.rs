@@ -13,29 +13,51 @@ fn part1(input: &'static str) -> Answer {
     let map = Map::from(input);
     let mut antinodes = FxHashSet::default();
 
-    for (_, ant) in map.antennae {
-        for (a_idx, a) in ant.iter().enumerate() {
-            for (b_idx, b) in ant.iter().enumerate().filter(|&(b_idx, ..)| a_idx != b_idx) {
-                let diff = *a - *b;
-                let loc = *a + diff;
-                if map.width.contains(&loc.0) && map.height.contains(&loc.1) {
-                    antinodes.insert(loc);
-                }
-            }
+    explore(&map.antennae, |a, b| {
+        let diff = *a - *b;
+        let loc = *a + diff;
+        if map.width.contains(&loc.0) && map.height.contains(&loc.1) {
+            antinodes.insert(loc);
         }
-    }
+    });
 
     antinodes.len()
 }
 
 fn part2(input: &'static str) -> Answer {
-    todo!();
+    let map = Map::from(input);
+    let mut antinodes = FxHashSet::default();
+
+    explore(&map.antennae, |a, b| {
+        let diff = *a - *b;
+        let mut loc = *a;
+        while map.width.contains(&loc.0) && map.height.contains(&loc.1) {
+            antinodes.insert(loc);
+            loc = loc + diff;
+        }
+    });
+
+    antinodes.len()
+}
+
+fn explore(antennae: &[Vec<Xy>], mut callback: impl FnMut(&Xy, &Xy)) {
+    for antenna in antennae {
+        for (a_idx, a) in antenna.iter().enumerate() {
+            for (_, b) in antenna
+                .iter()
+                .enumerate()
+                .filter(|&(b_idx, ..)| a_idx != b_idx)
+            {
+                callback(a, b);
+            }
+        }
+    }
 }
 
 struct Map {
     width: Range<isize>,
     height: Range<isize>,
-    antennae: FxHashMap<char, Vec<Xy>>,
+    antennae: Vec<Vec<Xy>>,
 }
 
 impl From<&str> for Map {
@@ -56,7 +78,7 @@ impl From<&str> for Map {
         Self {
             width,
             height,
-            antennae,
+            antennae: antennae.into_values().collect(),
         }
     }
 }
@@ -91,6 +113,6 @@ mod tests {
 
     #[test]
     fn part2() {
-        assert_eq!(super::part2(INPUT), super::Answer::default());
+        assert_eq!(super::part2(INPUT), 34);
     }
 }

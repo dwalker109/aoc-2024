@@ -124,3 +124,19 @@ still isn't that quick but meh.
 Part 1: 538191549061 (9.669805ms)
 Part 2: 34612812972206 (517.721678ms)
 ```
+
+## Day 8: Resonant Collinearity
+
+Another *excellent* day. I found it quite straightforward, and part 2 was another
+natural extension of part 1, which was satisfying. Implementing Add and Sub traits
+for my Xy coordinates, and iterating over each group of antennae in two dimensions
+felt elegant, and is very fast indeed. Allowing myself to wake up and ponder the
+problem a little bit works wonders for me. Probably the quickest day so far,
+bizarrely.
+
+### Timings
+
+```
+Part 1: 332 (33.903µs)
+Part 2: 1174 (94.125µs)
+```
