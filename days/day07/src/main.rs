@@ -1,7 +1,5 @@
-use crate::parsing::ParsedInput;
 use itertools::{repeat_n, Itertools};
-use std::collections::{HashMap, HashSet};
-use std::ops::ControlFlow;
+use rustc_hash::FxHashMap;
 
 static INPUT: &str = include_str!("../../../input/day07");
 
@@ -12,63 +10,52 @@ fn main() {
 }
 
 fn part1(input: &'static str) -> Answer {
-    let input = parsing::parse(input);
-    let cp = gen_cp(&input, &[Op::Add, Op::Mult]);
-
-    input
-        .iter()
-        .filter(|(target, n)| is_truthy(target, n, &cp))
-        .map(|(n, _)| n)
-        .sum()
+    go(input, &[Op::Add, Op::Mult])
 }
 
 fn part2(input: &'static str) -> Answer {
-    let input = parsing::parse(input);
-    let cp = gen_cp(&input, &[Op::Add, Op::Mult, Op::Concat]);
+    go(input, &[Op::Add, Op::Mult, Op::Concat])
+}
 
-    input
+fn go(input: &str, ops: &[Op]) -> usize {
+    let parsed = parsing::parse(input);
+    let mut cp = OpsCartesianProductCache::default();
+
+    parsed
         .iter()
-        .filter(|(target, n)| is_truthy(target, n, &cp))
+        .filter(|(target, n)| is_truthy(target, n, ops, &mut cp))
         .map(|(n, _)| n)
         .sum()
 }
 
-fn gen_cp(input: &ParsedInput, ops: &[Op]) -> HashMap<usize, Vec<Vec<Op>>> {
-    let i_range = input
-        .iter()
-        .map(|(_, n)| n.len())
-        .collect::<HashSet<usize>>();
+#[derive(Default)]
+struct OpsCartesianProductCache(FxHashMap<usize, Vec<Vec<Op>>>);
 
-    i_range
-        .iter()
-        .map(|i| {
-            (
-                *i,
-                repeat_n(ops.iter().copied(), i - 1)
-                    .multi_cartesian_product()
-                    .collect(),
-            )
+impl OpsCartesianProductCache {
+    fn get(&mut self, len: &usize, ops: &[Op]) -> &[Vec<Op>] {
+        self.0.entry(*len).or_insert_with(|| {
+            repeat_n(ops.iter().copied(), len - 1)
+                .multi_cartesian_product()
+                .collect()
         })
-        .collect()
+    }
 }
 
-fn is_truthy(target: &usize, n: &[usize], cp: &HashMap<usize, Vec<Vec<Op>>>) -> bool {
-    cp.get(&n.len()).unwrap().iter().any(|cp| {
-        let mut sum = n.iter().map(|n| Op::Num(*n)).interleave(cp.iter().copied());
+fn is_truthy(target: &usize, n: &[usize], ops: &[Op], cp: &mut OpsCartesianProductCache) -> bool {
+    cp.get(&n.len(), ops).iter().any(|cp| {
+        let sum = n
+            .iter()
+            .rev() // Goes in reverse, which allows for quicker aborting
+            .map(|n| Op::Num(*n))
+            .interleave(cp.iter().copied());
 
-        let init = sum.next().unwrap();
-        let result = sum.tuples().try_fold(init, |acc, (first, second)| {
-            let next = first.apply(&acc, &second);
-            if next.unwrap() > *target {
-                ControlFlow::Break(Op::Num(0))
-            } else {
-                ControlFlow::Continue(next)
-            }
-        });
+        let result = sum
+            .tuples()
+            .try_fold(Op::Num(*target), |acc, (a, b)| b.try_apply(&acc, &a));
 
         match result {
-            ControlFlow::Continue(op) => *target == op.unwrap(),
-            ControlFlow::Break(_) => false,
+            None => false,
+            Some(x) => x.unwrap() == *n.first().unwrap(),
         }
     })
 }
@@ -82,7 +69,8 @@ enum Op {
 }
 
 impl Op {
-    fn apply(&self, l: &Op, r: &Op) -> Op {
+    /// try_apply operates on the sum right to left, so * are divides, + are subtracts, || are splits
+    fn try_apply(&self, l: &Op, r: &Op) -> Option<Op> {
         let Op::Num(l) = *l else {
             panic!("must be a number!");
         };
@@ -91,18 +79,34 @@ impl Op {
         };
 
         match self {
-            Op::Add => Op::Num(l + r),
-            Op::Mult => Op::Num(l * r),
-            // See https://www.reddit.com/r/rust/comments/191l3ot
-            Op::Concat => Op::Num(l * 10usize.pow(r.ilog10() + 1) + r),
-            _ => panic!("must be add or mult or concat!"),
+            Op::Add => l.checked_sub(r).map(Op::Num),
+            Op::Mult => (l % r == 0).then(|| Op::Num(l / r)),
+            Op::Concat => {
+                let mut l = l;
+                let mut r = r;
+
+                while r != 0 {
+                    let last_l_digit = l % 10;
+                    let last_r_digit = r % 10;
+
+                    if last_l_digit == last_r_digit {
+                        l /= 10;
+                        r /= 10;
+                    } else {
+                        return None;
+                    }
+                }
+
+                Some(Op::Num(l))
+            }
+            _ => panic!("cannot apply this op"),
         }
     }
 
     fn unwrap(&self) -> usize {
         match self {
             Op::Num(n) => *n,
-            _ => panic!("must be a number!"),
+            _ => panic!("must be a number"),
         }
     }
 }
@@ -117,9 +121,7 @@ mod parsing {
         IResult,
     };
 
-    pub type ParsedInput = Vec<(usize, Vec<usize>)>;
-
-    pub fn parse(input: &str) -> ParsedInput {
+    pub fn parse(input: &str) -> Vec<(usize, Vec<usize>)> {
         input
             .lines()
             .map(|r| parse_line(r).unwrap())

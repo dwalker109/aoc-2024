@@ -114,13 +114,13 @@ Thoroughly enjoyed this. Once I figured out how to make my various permutations
 eval library to make it easy but operator precedence killed that idea, so I switched
 to folding over my own enum containing either operators or a literal number. This
 led to a *glorious* part 2 where I made a tiny change (literally add another op)
-and solved it immediately. Serendipitous indeed. My naive integer concat (literally
-format! them together) worked but was slow, so the maths here is not my own. It
-still isn't that quick but meh.
+and solved it immediately. Serendipitous indeed. Performance was not great though,
+so once I was advised that doing the sums right to left would lead to much more
+efficient culling of sums which wouldn't work, I implemented that and speeded
+things up 6x, to something I'm happier with. Caching the ops also helped a little.
 
 ### Timings
 
 ```
-Part 1: 538191549061 (9.669805ms)
-Part 2: 34612812972206 (517.721678ms)
-```
+Part 1: 538191549061 (2.884808ms)
+Part 2: 34612812972206 (113.005146ms)```
