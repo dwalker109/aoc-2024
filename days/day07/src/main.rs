@@ -1,6 +1,6 @@
 use crate::parsing::ParsedInput;
 use itertools::{repeat_n, Itertools};
-use std::collections::{HashMap, HashSet};
+use rustc_hash::{FxHashMap, FxHashSet};
 
 static INPUT: &str = include_str!("../../../input/day07");
 
@@ -32,11 +32,11 @@ fn part2(input: &'static str) -> Answer {
         .sum()
 }
 
-fn gen_cp(input: &ParsedInput, ops: &[Op]) -> HashMap<usize, Vec<Vec<Op>>> {
+fn gen_cp(input: &ParsedInput, ops: &[Op]) -> FxHashMap<usize, Vec<Vec<Op>>> {
     let i_range = input
         .iter()
         .map(|(_, n)| n.len())
-        .collect::<HashSet<usize>>();
+        .collect::<FxHashSet<usize>>();
 
     i_range
         .iter()
@@ -51,7 +51,7 @@ fn gen_cp(input: &ParsedInput, ops: &[Op]) -> HashMap<usize, Vec<Vec<Op>>> {
         .collect()
 }
 
-fn is_truthy(target: &usize, n: &[usize], cp: &HashMap<usize, Vec<Vec<Op>>>) -> bool {
+fn is_truthy(target: &usize, n: &[usize], cp: &FxHashMap<usize, Vec<Vec<Op>>>) -> bool {
     cp.get(&n.len()).unwrap().iter().any(|cp| {
         let sum = n
             .iter()
