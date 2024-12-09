@@ -141,3 +141,18 @@ bizarrely.
 Part 1: 332 (33.903µs)
 Part 2: 1174 (94.125µs)
 ```
+
+## Day 9: Disk Fragmenter
+
+I don't love my solution here - it feels a bit messy, hard to read, and isn't 
+that quick (c. 80ms for part 2 after some ugly optimisation) - but I'll go with 
+it. Mutably traversing lists from both directions can be a bit gory in rust, but
+what I have here isn't horrific so there's that, at least. Not my best day, not
+my worst.
+
+### Timings
+
+```
+Part 1: 6415184586041 (2.177603ms)
+Part 2: 6436819084274 (78.568809ms)
+```
