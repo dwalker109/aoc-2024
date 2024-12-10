@@ -15,15 +15,23 @@ fn part1(input: &'static str) -> Answer {
         .iter()
         .filter_map(|(xy, n)| (*n == 0).then_some(xy))
         .fold(0, |mut acc, xy| {
-            let mut reached = FxHashSet::default();
-            xy.score(None, &map, &mut reached);
-            acc += reached.len();
+            let mut score = FxHashSet::default();
+            xy.analyse(None, &map, &mut score);
+            acc += score.len();
             acc
         })
 }
 
 fn part2(input: &'static str) -> Answer {
-    todo!();
+    let map = Map::from(input);
+
+    map.0
+        .iter()
+        .filter_map(|(xy, n)| (*n == 0).then_some(xy))
+        .fold(0, |mut acc, xy| {
+            acc += xy.analyse(None, &map, &mut FxHashSet::default());
+            acc
+        })
 }
 
 struct Map(FxHashMap<Xy, usize>);
@@ -44,9 +52,6 @@ impl From<&str> for Map {
     }
 }
 
-#[derive(Debug, Default)]
-struct Cache(FxHashMap<Xy, Option<usize>>);
-
 #[derive(Debug, Clone, Copy, Eq, Hash, PartialEq)]
 struct Xy(isize, isize);
 
@@ -56,12 +61,12 @@ impl Xy {
         [Xy(x - 1, *y), Xy(*x, y - 1), Xy(x + 1, *y), Xy(*x, y + 1)]
     }
 
-    fn score(&self, prev: Option<&Xy>, map: &Map, reached: &mut FxHashSet<Xy>) -> usize {
+    fn analyse(&self, prev: Option<&Xy>, map: &Map, score: &mut FxHashSet<Xy>) -> usize {
         let Some(self_height) = map.0.get(self) else {
             return 0;
         };
 
-        let mut scores = 0;
+        let mut rating = 0;
 
         match prev {
             Some(prev) => {
@@ -71,22 +76,23 @@ impl Xy {
 
                 if self_height > prev_height && self_height.abs_diff(*prev_height) == 1 {
                     if *self_height == 9 {
-                        reached.insert(*self);
+                        score.insert(*self);
+                        return 1;
                     }
 
                     for xy in self.adj() {
-                        scores += xy.score(Some(self), map, reached);
+                        rating += xy.analyse(Some(self), map, score);
                     }
                 }
             }
             None => {
                 for xy in self.adj() {
-                    scores += xy.score(Some(self), map, reached);
+                    rating += xy.analyse(Some(self), map, score);
                 }
             }
         }
 
-        scores
+        rating
     }
 }
 
@@ -101,6 +107,6 @@ mod tests {
 
     #[test]
     fn part2() {
-        assert_eq!(super::part2(INPUT), super::Answer::default());
+        assert_eq!(super::part2(INPUT), 81);
     }
 }

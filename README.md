@@ -156,3 +156,21 @@ my worst.
 Part 1: 6415184586041 (2.177603ms)
 Part 2: 6436819084274 (78.568809ms)
 ```
+
+## Day 10: Hoof It
+
+I figured out most of this before starting to code it; but I assumed I'd need
+to use a cache and so worked myself into a knot. They I just kept getting the
+wrong answers to the test data and had convinced myself I'd got some weird bug.
+It turns out I'd just solved part 2 first because the part 1 instructions were
+a bit obtuse; on re-reading them later I realised the mistake I'd made, and
+according to the the subreddit, this is common. Got it working in 5 mins after 
+that, and part 2 was a cakewalk. In fact, the same solve function produces
+both answers since all that really changes is a lack of deduplication in part 2.
+
+### Timings
+
+```
+Part 1: 538 (382.454µs)
+Part 2: 1110 (315.249µs)
+```
