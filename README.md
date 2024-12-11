@@ -174,3 +174,17 @@ both answers since all that really changes is a lack of deduplication in part 2.
 Part 1: 538 (382.454µs)
 Part 2: 1110 (315.249µs)
 ```
+
+## Day 11: Plutonian Pebbles
+
+This was easy, because I remember the lanternfish problem. It's basically the same.
+The problem statement was (intentionally) misleading because it stated the pebbles
+were ordered, but in reality, that's irellevant because the rules are independent 
+and we only care about quantities. Fun, since I knew the trick. Also pretty fast.
+
+### Timings
+
+```
+Part 1: 538 (386.786µs)
+Part 2: 1110 (351.85µs)
+```
