@@ -188,3 +188,18 @@ and we only care about quantities. Fun, since I knew the trick. Also pretty fast
 Part 1: 538 (386.786µs)
 Part 2: 1110 (351.85µs)
 ```
+
+## Day 12: Garden Groups
+
+This one definitely required some thought. Grouping things into regions is easy,
+and figuring out a perimeter was too (how many of the adjacent X, Y co-ordinates
+are contained within this region, subtracted from 4). Calculating the number of
+sides took a bit more gymnastics and ultimtely the amount of interation I'm 
+doing here means this isn't mega fast, but at < 10 ms for both parts it's OK.
+
+### Timings
+
+```
+Part 1: 1415378 (2.790766ms)
+Part 2: 862714 (5.741602ms)
+```
