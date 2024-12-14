@@ -203,3 +203,22 @@ doing here means this isn't mega fast, but at < 10 ms for both parts it's OK.
 Part 1: 1415378 (2.790766ms)
 Part 2: 862714 (5.741602ms)
 ```
+
+## 👺 Day 13: Claw Contraption
+
+A maths days. And not one where I figured out what the maths was and felt like it
+tackled it; I just didn't get it. I knew how to brute force part 1 but I didn't
+even bother trying, and a look at the subreddit clued me in that "linear algebra"
+was what I needed, but after watching 2 hours of videos I got some of the basics
+but didn't have a clue what to do to solve this. So, I read the tutorial at
+https://www.reddit.com/r/adventofcode/comments/1hd7irq/2024_day_13_an_explanation_of_the_mathematics/
+and implemented my own variant. I can't take any credit for this one, so I didn't
+even do it until the following day. Worst one of the year and I hope we don't
+get many more of these.
+
+### Timings
+
+```
+Part 1: 38714 (138.498µs)
+Part 2: 74015623345775 (164.236µs)
+```
