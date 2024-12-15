@@ -222,3 +222,13 @@ get many more of these.
 Part 1: 38714 (138.498µs)
 Part 2: 74015623345775 (164.236µs)
 ```
+
+## Day 14: Restroom Redoubt
+
+...
+
+### Timings
+
+```
+...
+```
