@@ -225,10 +225,17 @@ Part 2: 74015623345775 (164.236µs)
 
 ## Day 14: Restroom Redoubt
 
-...
+This wasn't especially though. Part 1 was a simple add with mod to facilitate wrapping
+aroung a grid. It *looked* like this was going to be a problem which punished
+you for running a simple simulation (instead of skipping ahead), but in fact part 2
+required solving something a bit ambiguous - finding a picture in the output.
+There was no test case for this and it was mainly detective work. In the end, I
+stumbled across the hueristic (all robots will be on a unique square when the tree
+is being displayed) and optimised that to finish things off.
 
 ### Timings
 
 ```
-...
+Part 1: 219512160 (76.684µs)
+Part 2: 6398 (15.430592ms)
 ```
